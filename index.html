@@ -735,6 +735,7 @@ let timerTotal=0;
 let timerLeft=0;
 let timerMinimized=false;
 let timerExName="";
+let timerEndTime=0; // timestamp absoluto cuando termina el timer
 const CIRC=2*Math.PI*80;
 
 // Request notification permission on first use
@@ -748,6 +749,7 @@ function startTimer(secs,exName,subtitle){
   requestNotifPermission();
   clearInterval(timerInterval);
   timerTotal=secs;timerLeft=secs;
+  timerEndTime=Date.now()+(secs*1000);
   timerExName=exName;
   timerMinimized=false;
   document.getElementById("to-ex").textContent=exName;
@@ -758,10 +760,12 @@ function startTimer(secs,exName,subtitle){
   document.getElementById("tm-name").textContent=exName;
   updateTimerUI();
   timerInterval=setInterval(()=>{
-    timerLeft--;
+    // Calcular tiempo restante usando tiempo real, no contando ticks
+    const remaining=Math.ceil((timerEndTime-Date.now())/1000);
+    timerLeft=Math.max(0,remaining);
     if(timerLeft<=0){clearInterval(timerInterval);onTimerEnd();}
     else updateTimerUI();
-  },1000);
+  },500); // tick cada 500ms para mayor precisión al volver al frente
 }
 
 function updateTimerUI(){
@@ -912,6 +916,21 @@ function renderHistory(){
   }
   el.innerHTML=`<div style="padding:0 14px 20px">${weekHtml}${streakHtml}${prHtml}</div>`;
 }
+
+// ── VISIBILITY: sincronizar timer al volver al frente (iOS background fix) ────
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && timerInterval && timerEndTime){
+    const remaining=Math.ceil((timerEndTime-Date.now())/1000);
+    if(remaining<=0){
+      clearInterval(timerInterval);
+      timerLeft=0;
+      onTimerEnd();
+    } else {
+      timerLeft=remaining;
+      updateTimerUI();
+    }
+  }
+});
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 updateStreak();
