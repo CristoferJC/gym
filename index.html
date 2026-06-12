@@ -225,6 +225,28 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Inter','H
 .pr-date{font-size:9px;color:var(--t3);margin-top:1px;}
 .empty-state{text-align:center;padding:40px 20px;color:var(--t3);font-size:12px;line-height:1.7;}
 
+/* ── ADD / DELETE EXERCISE ── */
+.add-ex-btn{width:100%;padding:11px;border-radius:var(--r);border:1px dashed var(--border2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.add-ex-btn:active{border-color:var(--accent);color:var(--accent);}
+.del-ex-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--t3);font-size:9px;font-weight:700;cursor:pointer;transition:all .15s;margin-left:4px;}
+.del-ex-btn:active{color:var(--red);border-color:var(--red);}
+#add-ex-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
+#add-ex-modal.show{display:flex;}
+.aem-sheet{background:var(--s1);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;}
+.aem-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;}
+.aem-row{display:flex;gap:8px;margin-bottom:10px;}
+.aem-field-wrap{display:flex;flex-direction:column;flex:1;min-width:0;}
+.aem-label{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:3px;}
+.aem-field{background:var(--s3);border:1px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);font-size:13px;font-weight:600;outline:none;-webkit-appearance:none;width:100%;}
+.aem-field:focus{border-color:var(--accent2);}
+.aem-field::placeholder{color:var(--t3);}
+.aem-btns{display:flex;gap:8px;margin-top:14px;}
+.aem-cancel{flex:1;padding:11px;border-radius:9px;border:1px solid var(--border2);background:none;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;}
+.aem-add{flex:2;padding:11px;border-radius:9px;border:none;background:var(--accent);color:#0C0C0D;font-size:13px;font-weight:800;cursor:pointer;}
+.aem-type-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.aem-type-btn{padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:none;color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.aem-type-btn.sel{background:var(--accent);color:#0C0C0D;border-color:var(--accent);}
+
 /* ── TIP ── */
 .tip-box{background:var(--s2);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:var(--r2);padding:11px 13px;margin:10px 0 16px;font-size:11px;color:var(--t2);line-height:1.6;}
 .tip-box b{color:var(--accent);}
@@ -305,6 +327,42 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Inter','H
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     Historial
   </button>
+</div>
+
+<!-- ADD EXERCISE MODAL -->
+<div id="add-ex-modal">
+  <div class="aem-sheet">
+    <div class="aem-title">Nuevo ejercicio</div>
+    <div class="aem-field-wrap" style="margin-bottom:10px">
+      <div class="aem-label">Nombre</div>
+      <input class="aem-field" id="aem-name" type="text" placeholder="ej: Press inclinado"/>
+    </div>
+    <div class="aem-row">
+      <div class="aem-field-wrap">
+        <div class="aem-label">Series</div>
+        <input class="aem-field" id="aem-series" type="text" inputmode="numeric" placeholder="3"/>
+      </div>
+      <div class="aem-field-wrap">
+        <div class="aem-label">Reps</div>
+        <input class="aem-field" id="aem-reps" type="text" placeholder="10–12"/>
+      </div>
+      <div class="aem-field-wrap">
+        <div class="aem-label">Descanso (s)</div>
+        <input class="aem-field" id="aem-rest" type="text" inputmode="numeric" placeholder="90"/>
+      </div>
+    </div>
+    <div class="aem-label" style="margin-bottom:6px">Tipo</div>
+    <div class="aem-type-row" id="aem-type-row">
+      <button class="aem-type-btn sel" data-t="c" onclick="selectAemType('c')">Compuesto</button>
+      <button class="aem-type-btn" data-t="i" onclick="selectAemType('i')">Aislamiento</button>
+      <button class="aem-type-btn" data-t="co" onclick="selectAemType('co')">Core</button>
+      <button class="aem-type-btn" data-t="ca" onclick="selectAemType('ca')">Cardio</button>
+    </div>
+    <div class="aem-btns">
+      <button class="aem-cancel" onclick="closeAddModal()">Cancelar</button>
+      <button class="aem-add" onclick="confirmAddExercise()">+ Añadir</button>
+    </div>
+  </div>
 </div>
 
 <!-- TIMER OVERLAY (full screen) -->
@@ -407,7 +465,9 @@ function save(){
 let ST = loadST();
 
 // ── DAYS (with custom edits merged) ──────────────────────────────────────────
-// ST.exEdits[dayId][idx] = {n, s, r}  — custom overrides
+// ST.exEdits[dayId][idx]   = overrides de ejercicios base (por índice base)
+// ST.customExs[dayId]      = array de ejercicios añadidos {n,s,r,rest,t,fail,fl}
+// ST.deletedExs[dayId]     = Set (guardado como array) de índices base eliminados
 function getExercise(dayId, idx){
   const base = DEFAULT_DAYS.find(d=>d.id===dayId)?.exercises[idx];
   if(!base) return null;
@@ -418,9 +478,14 @@ function getExercise(dayId, idx){
 function getDay(dayId){
   const base = DEFAULT_DAYS.find(d=>d.id===dayId);
   if(!base) return null;
+  const deleted = new Set((ST.deletedExs||{})[dayId]||[]);
+  const baseExs = base.exercises
+    .map((_,i)=>({...getExercise(dayId,i), _baseIdx:i}))
+    .filter((_,i)=>!deleted.has(i));
+  const customs = ((ST.customExs||{})[dayId]||[]).map((ex,ci)=>({...ex, _customIdx:ci}));
   return {
     ...base,
-    exercises: base.exercises.map((_,i)=>getExercise(dayId,i))
+    exercises: [...baseExs, ...customs]
   };
 }
 function DAYS(){ return DEFAULT_DAYS.map(d=>getDay(d.id)); }
@@ -436,7 +501,54 @@ function ensureDay(id){
   if(!ST.weights[id])ST.weights[id]={};
   if(!ST.exEdits)ST.exEdits={};
   if(!ST.exEdits[id])ST.exEdits[id]={};
+  if(!ST.customExs)ST.customExs={};
+  if(!ST.customExs[id])ST.customExs[id]=[];
+  if(!ST.deletedExs)ST.deletedExs={};
+  if(!ST.deletedExs[id])ST.deletedExs[id]=[];
 }
+
+// ── ADD / DELETE EXERCISES ────────────────────────────────────────────────────
+let addModalDayId = null;
+let aemSelectedType = "c";
+
+function openAddModal(dayId){
+  addModalDayId = dayId;
+  aemSelectedType = "c";
+  document.getElementById("aem-name").value = "";
+  document.getElementById("aem-series").value = "";
+  document.getElementById("aem-reps").value = "";
+  document.getElementById("aem-rest").value = "";
+  document.querySelectorAll(".aem-type-btn").forEach(b=>b.classList.toggle("sel", b.dataset.t==="c"));
+  document.getElementById("add-ex-modal").classList.add("show");
+  setTimeout(()=>document.getElementById("aem-name").focus(), 100);
+}
+
+function closeAddModal(){
+  document.getElementById("add-ex-modal").classList.remove("show");
+  addModalDayId = null;
+}
+
+function selectAemType(t){
+  aemSelectedType = t;
+  document.querySelectorAll(".aem-type-btn").forEach(b=>b.classList.toggle("sel", b.dataset.t===t));
+}
+
+function confirmAddExercise(){
+  const name = document.getElementById("aem-name").value.trim();
+  if(!name) { document.getElementById("aem-name").focus(); return; }
+  const s = document.getElementById("aem-series").value.trim() || "3";
+  const r = document.getElementById("aem-reps").value.trim() || "10–12";
+  const rest = parseInt(document.getElementById("aem-rest").value) || 60;
+  const t = aemSelectedType;
+  const failMap = {c:"no", i:"last", co:"last", ca:"dash"};
+  const flMap = {c:"No (RIR 2)", i:"Última serie", co:"Última serie", ca:"—"};
+  ensureDay(addModalDayId);
+  ST.customExs[addModalDayId].push({n:name, s, r, rest, t, fail:failMap[t]||"last", fl:flMap[t]||"—"});
+  save();
+  closeAddModal();
+  renderWorkout();
+}
+
 
 function saveExEdit(dayId, idx, field, value){
   ensureDay(dayId);
@@ -471,14 +583,6 @@ function renderTabs(){
     b.onclick=()=>{activeDay=day.id;renderWorkout();};
     el.appendChild(b);
   });
-  ["Sáb","Dom"].forEach((lbl,i)=>{
-    const id=i===0?"sabado":"domingo";
-    const b=document.createElement("button");
-    b.className="tab"+(activeDay===id?" active":"");
-    b.textContent=lbl;
-    b.onclick=()=>{activeDay=id;renderWorkout();};
-    el.appendChild(b);
-  });
 }
 
 // ── PROGRESS ─────────────────────────────────────────────────────────────────
@@ -494,71 +598,83 @@ function updateProgress(){
 function isDayDone(id){
   const day=getDay(id);if(!day)return false;
   const ss=(ST.sets||{})[id]||{};
-  return day.exercises.every((ex,i)=>{
+  return day.exercises.every((ex)=>{
+    const k=exKey(ex);
     const total=parseInt(ex.s)||0;
-    return total===0||(ss[i]||0)>=total;
+    return total===0||(ss[k]||0)>=total;
   });
 }
 function dayProgress(id){
   const day=getDay(id);if(!day)return{done:0,total:0};
   const ss=(ST.sets||{})[id]||{};
-  const done=day.exercises.filter((ex,i)=>{
+  const done=day.exercises.filter((ex)=>{
+    const k=exKey(ex);
     const total=parseInt(ex.s)||0;
-    return total===0||(ss[i]||0)>=total;
+    return total===0||(ss[k]||0)>=total;
   }).length;
   return{done,total:day.exercises.length};
 }
-function exDone(dayId,idx){
-  const day=getDay(dayId);if(!day)return false;
-  const ex=day.exercises[idx];
+function exDone(dayId,ex){
+  const k=exKey(ex);
   const total=parseInt(ex.s)||0;
-  if(total===0)return!!(ST.sets&&ST.sets[dayId]&&ST.sets[dayId][idx]);
-  return((ST.sets&&ST.sets[dayId]&&ST.sets[dayId][idx])||0)>=total;
+  if(total===0)return!!(ST.sets&&ST.sets[dayId]&&ST.sets[dayId][k]);
+  return((ST.sets&&ST.sets[dayId]&&ST.sets[dayId][k])||0)>=total;
+}
+// clave estable para sets/weights: "b0","b1"... para base, "c0","c1"... para custom
+function exKey(ex){
+  return ex._customIdx !== undefined ? "c"+ex._customIdx : "b"+ex._baseIdx;
 }
 
 // ── EDIT STATE ────────────────────────────────────────────────────────────────
-let editingCard = null; // "dayId-idx" or null
+let editingCard = null; // "dayId-exKey" or null
 
-function toggleEditCard(dayId, idx, event){
+function toggleEditCard(dayId, ek, event){
   event.stopPropagation();
-  const key = dayId+"-"+idx;
+  const key = dayId+"-"+ek;
   editingCard = editingCard === key ? null : key;
   renderWorkout();
-  // scroll to card
   setTimeout(()=>{
-    const card = document.getElementById("ec-"+dayId+"-"+idx);
+    const card = document.getElementById("ec-"+dayId+"-"+ek);
     if(card) card.scrollIntoView({behavior:"smooth",block:"nearest"});
   },50);
 }
 
-function applyEdit(dayId, idx){
-  const nEl = document.getElementById("edit-n-"+dayId+"-"+idx);
-  const sEl = document.getElementById("edit-s-"+dayId+"-"+idx);
-  const rEl = document.getElementById("edit-r-"+dayId+"-"+idx);
+function applyEdit(dayId, ek){
+  const nEl = document.getElementById("edit-n-"+dayId+"-"+ek);
+  const sEl = document.getElementById("edit-s-"+dayId+"-"+ek);
+  const rEl = document.getElementById("edit-r-"+dayId+"-"+ek);
   ensureDay(dayId);
-  if(nEl && nEl.value.trim()) saveExEdit(dayId, idx, "n", nEl.value.trim());
-  if(sEl && sEl.value.trim()) saveExEdit(dayId, idx, "s", sEl.value.trim());
-  if(rEl && rEl.value.trim()) saveExEdit(dayId, idx, "r", rEl.value.trim());
-  editingCard = null;
-  save();
-  renderWorkout();
+  if(ek.startsWith("c")){
+    const ci=parseInt(ek.slice(1));
+    const c=ST.customExs[dayId][ci];
+    if(c){
+      if(nEl&&nEl.value.trim())c.n=nEl.value.trim();
+      if(sEl&&sEl.value.trim())c.s=sEl.value.trim();
+      if(rEl&&rEl.value.trim())c.r=rEl.value.trim();
+    }
+  } else {
+    const bi=parseInt(ek.slice(1));
+    if(nEl&&nEl.value.trim()) saveExEdit(dayId,bi,"n",nEl.value.trim());
+    if(sEl&&sEl.value.trim()) saveExEdit(dayId,bi,"s",sEl.value.trim());
+    if(rEl&&rEl.value.trim()) saveExEdit(dayId,bi,"r",rEl.value.trim());
+  }
+  editingCard=null;
+  save();renderWorkout();
 }
 
-function resetEdit(dayId, idx){
+function resetEdit(dayId, ek){
   ensureDay(dayId);
-  delete ST.exEdits[dayId][idx];
-  save();
-  renderWorkout();
+  if(ek.startsWith("b")){
+    const bi=parseInt(ek.slice(1));
+    delete ST.exEdits[dayId][bi];
+    save();renderWorkout();
+  }
 }
 
 // ── WORKOUT PAGE ──────────────────────────────────────────────────────────────
 function renderWorkout(){
   renderTabs();updateProgress();
   const el=document.getElementById("page-workout");
-  if(activeDay==="sabado"||activeDay==="domingo"){
-    el.innerHTML=`<div class="weekend-card"><div class="wc-icon">🌿</div><div class="wc-title">Descanso activo</div><div class="wc-sub">Camina, estira, haz movilidad.<br>El músculo crece en el descanso.</div></div>`;
-    return;
-  }
   const day=getDay(activeDay);if(!day)return;
   ensureDay(day.id);
   const {done,total}=dayProgress(day.id);
@@ -578,23 +694,25 @@ function renderWorkout(){
 
   h+=`<div class="sec-label">Ejercicios<button class="reset-btn" onclick="resetDay('${day.id}')">Reiniciar</button></div>`;
 
-  day.exercises.forEach((ex,i)=>{
-    const ss=(ST.sets[day.id][i])||0;
+  day.exercises.forEach((ex)=>{
+    const ek=exKey(ex);
+    const ss=(ST.sets[day.id][ek])||0;
     const totalSeries=parseInt(ex.s)||0;
-    const isDone=exDone(day.id,i);
-    const wval=(ST.weights[day.id]||{})[i]||"";
+    const isDone=exDone(day.id,ex);
+    const wval=(ST.weights[day.id]||{})[ek]||"";
     const chipCls={no:"cno",last:"clast",last2:"clast",always:"calways",never:"cnever",dash:"cdash"}[ex.fail]||"cdash";
     const badgeCls={c:"bc",i:"bi",ca:"bca",co:"bco"}[ex.t]||"bi";
     const badgeLbl={c:"Compuesto",i:"Aislamiento",ca:"Cardio",co:"Core"}[ex.t]||"";
     const restLabel=ex.rest>=60?`${Math.floor(ex.rest/60)}m${ex.rest%60?ex.rest%60+"s":""}`:ex.rest?`${ex.rest}s`:"—";
-    const hasCustomEdit = (ST.exEdits&&ST.exEdits[day.id]&&ST.exEdits[day.id][i]&&Object.keys(ST.exEdits[day.id][i]).length>0);
+    const hasCustomEdit = ex._baseIdx!==undefined && (ST.exEdits&&ST.exEdits[day.id]&&ST.exEdits[day.id][ex._baseIdx]&&Object.keys(ST.exEdits[day.id][ex._baseIdx]).length>0);
+    const isCustom = ex._customIdx !== undefined;
 
     // previous weight
     let prevW="";
     if(ST.history){
       for(let hi=ST.history.length-1;hi>=0;hi--){
         const he=ST.history[hi];
-        if(he.dayId===day.id&&he.weights&&he.weights[i]){prevW=he.weights[i];break;}
+        if(he.dayId===day.id&&he.weights&&he.weights[ek]){prevW=he.weights[ek];break;}
       }
     }
 
@@ -604,46 +722,46 @@ function renderWorkout(){
       serBtns=`<div class="ser-row">`;
       for(let s=1;s<=totalSeries;s++){
         const sclass=s<=ss?"sdone":s===ss+1?"sactive":"";
-        serBtns+=`<button class="ser-btn ${sclass}" onclick="tickSerie('${day.id}',${i},${s},event)">Serie ${s}</button>`;
+        serBtns+=`<button class="ser-btn ${sclass}" onclick="tickSerieByKey('${day.id}','${ek}',${s},event)">Serie ${s}</button>`;
       }
       serBtns+=`</div>`;
     }
 
     // edit section
-    const editKey = day.id+"-"+i;
+    const editKey = day.id+"-"+ek;
     const isEditing = editingCard === editKey;
     let editSection="";
     if(isEditing){
-      const defEx = DEFAULT_DAYS.find(d=>d.id===day.id)?.exercises[i];
       editSection=`<div class="edit-row" onclick="event.stopPropagation()">
         <div class="edit-col edit-name-col">
           <div class="edit-label">Nombre</div>
-          <input class="edit-field" id="edit-n-${day.id}-${i}" type="text" value="${ex.n}" placeholder="${defEx?.n||ex.n}"/>
+          <input class="edit-field" id="edit-n-${day.id}-${ek}" type="text" value="${ex.n}" placeholder="${ex.n}"/>
         </div>
         <div class="edit-col" style="max-width:52px">
           <div class="edit-label">Series</div>
-          <input class="edit-field" id="edit-s-${day.id}-${i}" type="text" value="${ex.s}" placeholder="${defEx?.s||ex.s}"/>
+          <input class="edit-field" id="edit-s-${day.id}-${ek}" type="text" value="${ex.s}" placeholder="${ex.s}"/>
         </div>
         <div class="edit-col" style="max-width:72px">
           <div class="edit-label">Reps</div>
-          <input class="edit-field" id="edit-r-${day.id}-${i}" type="text" value="${ex.r}" placeholder="${defEx?.r||ex.r}"/>
+          <input class="edit-field" id="edit-r-${day.id}-${ek}" type="text" value="${ex.r}" placeholder="${ex.r}"/>
         </div>
       </div>
       <div style="display:flex;gap:6px;padding:0 0 10px;" onclick="event.stopPropagation()">
-        <button class="edit-save-btn" onclick="applyEdit('${day.id}',${i})">Guardar</button>
-        ${hasCustomEdit?`<button class="reset-btn" style="align-self:center" onclick="resetEdit('${day.id}',${i})">Restaurar</button>`:""}
+        <button class="edit-save-btn" onclick="applyEdit('${day.id}','${ek}')">Guardar</button>
+        ${hasCustomEdit?`<button class="reset-btn" style="align-self:center" onclick="resetEdit('${day.id}','${ek}')">Restaurar</button>`:""}
       </div>`;
     }
 
-    h+=`<div class="ex-card${isDone?" done":""}" id="ec-${day.id}-${i}">
-      <div class="ex-inner" onclick="toggleExDone('${day.id}',${i},event)">
+    h+=`<div class="ex-card${isDone?" done":""}" id="ec-${day.id}-${ek}">
+      <div class="ex-inner" onclick="toggleExDoneByKey('${day.id}','${ek}',event)">
         <div class="chk"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="#0C0C0D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="ex-body">
           <div class="ex-top">
             <span class="ex-name">${ex.n}</span>
             <span class="ex-badge ${badgeCls}">${badgeLbl}</span>
-            ${hasCustomEdit?`<span style="font-size:8px;color:var(--accent3);font-weight:700">✎</span>`:""}
-            <button class="edit-toggle-btn" onclick="toggleEditCard('${day.id}',${i},event)">${isEditing?"Cerrar":"Editar"}</button>
+            ${isCustom?`<span style="font-size:8px;color:var(--blue);font-weight:700">+</span>`:(hasCustomEdit?`<span style="font-size:8px;color:var(--accent3);font-weight:700">✎</span>`:"")}
+            <button class="edit-toggle-btn" onclick="toggleEditCard('${day.id}','${ek}',event)">${isEditing?"Cerrar":"Editar"}</button>
+            <button class="del-ex-btn" onclick="deleteExerciseByKey('${day.id}','${ek}',event)">✕</button>
           </div>
           <div class="ex-stats">
             <div class="ex-stat"><div class="ex-sl">Series</div><div class="ex-sv">${ss}/${totalSeries||"—"}</div></div>
@@ -662,40 +780,42 @@ function renderWorkout(){
             placeholder="ej: 80kg · 4×8"
             value="${wval}"
             onclick="event.stopPropagation()"
-            onchange="saveWeight('${day.id}',${i},this.value)"
-            oninput="saveWeight('${day.id}',${i},this.value)"/>
+            onchange="saveWeightByKey('${day.id}','${ek}',this.value)"
+            oninput="saveWeightByKey('${day.id}','${ek}',this.value)"/>
         </div>
         ${prevW?`<div class="wlog-prev">Última vez: <b>${prevW}</b></div>`:""}
       </div>
     </div>`;
   });
 
+  h+=`<button class="add-ex-btn" onclick="openAddModal('${day.id}')">＋ Añadir ejercicio</button>`;
   h+=`<div class="tip-box">💡 ${day.tip}</div>`;
   el.innerHTML=h;
   el.scrollTop=0;
 }
 
-function saveWeight(dayId,idx,val){
+function saveWeightByKey(dayId,ek,val){
   ensureDay(dayId);
-  ST.weights[dayId][idx]=val;
+  ST.weights[dayId][ek]=val;
   save();
 }
 
 // Tap a series button
-function tickSerie(dayId,idx,serNum,event){
+function tickSerieByKey(dayId,ek,serNum,event){
   event.stopPropagation();
   ensureDay(dayId);
   const day=getDay(dayId);
-  const ex=day.exercises[idx];
+  const ex=day.exercises.find(e=>exKey(e)===ek);
+  if(!ex)return;
   const total=parseInt(ex.s)||0;
-  const current=(ST.sets[dayId][idx])||0;
+  const current=(ST.sets[dayId][ek])||0;
 
   if(serNum<=current){
-    ST.sets[dayId][idx]=serNum-1;
+    ST.sets[dayId][ek]=serNum-1;
     save();renderWorkout();return;
   }
 
-  ST.sets[dayId][idx]=serNum;
+  ST.sets[dayId][ek]=serNum;
 
   const isLast=serNum>=total;
   if(isLast){
@@ -708,18 +828,32 @@ function tickSerie(dayId,idx,serNum,event){
   save();renderWorkout();
 }
 
-function toggleExDone(dayId,idx,event){
+function toggleExDoneByKey(dayId,ek,event){
   if(event.target.closest(".ser-zone"))return;
   ensureDay(dayId);
   const day=getDay(dayId);
-  const ex=day.exercises[idx];
+  const ex=day.exercises.find(e=>exKey(e)===ek);
+  if(!ex)return;
   const total=parseInt(ex.s)||0;
-  const current=(ST.sets[dayId][idx])||0;
+  const current=(ST.sets[dayId][ek])||0;
   if(current>0){
-    ST.sets[dayId][idx]=0;
+    ST.sets[dayId][ek]=0;
   } else {
-    ST.sets[dayId][idx]=total||1;
+    ST.sets[dayId][ek]=total||1;
     logHistory(dayId);updateStreak();
+  }
+  save();renderWorkout();
+}
+
+function deleteExerciseByKey(dayId,ek,event){
+  event.stopPropagation();
+  ensureDay(dayId);
+  if(ek.startsWith("c")){
+    const ci=parseInt(ek.slice(1));
+    ST.customExs[dayId].splice(ci,1);
+  } else {
+    const bi=parseInt(ek.slice(1));
+    if(!ST.deletedExs[dayId].includes(bi)) ST.deletedExs[dayId].push(bi);
   }
   save();renderWorkout();
 }
