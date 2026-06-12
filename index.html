@@ -804,7 +804,9 @@ function expandTimer(){
 
 function skipTimer(){
   clearInterval(timerInterval);
+  timerInterval=null;
   timerLeft=0;
+  timerEndTime=0;
   document.getElementById("timer-overlay").classList.remove("show");
   document.getElementById("timer-overlay").classList.remove("minimized");
   document.getElementById("timer-mini").classList.remove("show");
@@ -917,17 +919,28 @@ function renderHistory(){
   el.innerHTML=`<div style="padding:0 14px 20px">${weekHtml}${streakHtml}${prHtml}</div>`;
 }
 
-// ── VISIBILITY: sincronizar timer al volver al frente (iOS background fix) ────
+// ── VISIBILITY: sincronizar timer al volver al frente (fix iOS/Firefox) ────
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible" && timerInterval && timerEndTime){
+  if(document.visibilityState==="visible" && timerEndTime>0){
     const remaining=Math.ceil((timerEndTime-Date.now())/1000);
     if(remaining<=0){
       clearInterval(timerInterval);
+      timerInterval=null;
       timerLeft=0;
+      timerEndTime=0;
       onTimerEnd();
     } else {
       timerLeft=remaining;
       updateTimerUI();
+      // Firefox puede haber matado el intervalo, relanzarlo si es necesario
+      if(!timerInterval){
+        timerInterval=setInterval(()=>{
+          const r=Math.ceil((timerEndTime-Date.now())/1000);
+          timerLeft=Math.max(0,r);
+          if(timerLeft<=0){clearInterval(timerInterval);timerInterval=null;timerEndTime=0;onTimerEnd();}
+          else updateTimerUI();
+        },500);
+      }
     }
   }
 });
