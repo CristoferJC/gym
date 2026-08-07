@@ -246,6 +246,8 @@ button,input,select{font-family:inherit;}
 .add-ex-btn:active{border-color:var(--accent);color:var(--accent);}
 .del-ex-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--t3);font-size:9px;font-weight:700;cursor:pointer;transition:all .15s;margin-left:4px;}
 .del-ex-btn:active{color:var(--red);border-color:var(--red);}
+.photo-ex-btn{padding:4px 7px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--t3);font-size:11px;line-height:1;cursor:pointer;transition:all .15s;margin-left:4px;display:inline-flex;align-items:center;}
+.photo-ex-btn:active{color:var(--accent);border-color:var(--accent);}
 #add-ex-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s cubic-bezier(.2,.8,.2,1),visibility .25s;}
 #add-ex-modal.show{opacity:1;visibility:visible;pointer-events:all;}
 .aem-sheet{background:var(--s1);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;transform:translateY(24px);transition:transform .28s cubic-bezier(.2,.8,.2,1);}
@@ -424,59 +426,63 @@ button,input,select{font-family:inherit;}
 // ── DEFAULT DATA ──────────────────────────────────────────────────────────────
 const DEFAULT_DAYS = [
   {id:"lunes",label:"Lun",name:"Pecho + Hombros + Tríceps",sub:"Compuestos primero — así ganas más",exercises:[
-    {n:"Press banca con barra",s:"4",r:"6–8",rest:150,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Press inclinado mancuernas",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"c"},
-    {n:"Aperturas en polea alta",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Press militar mancuernas",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Elevaciones laterales",s:"4",r:"12–15",rest:60,fail:"last2",fl:"Últimas 2 series",t:"i"},
-    {n:"Press cerrado con barra",s:"3",r:"8–10",rest:90,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Extensión tríceps en polea",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i"},
+    {n:"Press banca con barra",s:"4",r:"6–8",rest:150,fail:"no",fl:"No (RIR 2)",t:"c",sug:"40–50kg"},
+    {n:"Press inclinado con mancuernas",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"c",sug:"12–16kg c/u"},
+    {n:"Press cerrado con barra",s:"3",r:"8–10",rest:90,fail:"no",fl:"No (RIR 2)",t:"c",sug:"30–35kg"},
+    {n:"Press militar con barra",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c",sug:"25–30kg"},
+    {n:"Aperturas en polea alta",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"7–10kg c/lado"},
+    {n:"Elevaciones laterales",s:"4",r:"12–15",rest:60,fail:"last2",fl:"Últimas 2 series",t:"i",sug:"5–7kg c/u"},
+    {n:"Extensión de tríceps en polea",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"12–16kg"},
   ],tip:"<b>Compuestos primero.</b> El press banca y el press militar son tu base — el resto gira en torno a ellos."},
   {id:"martes",label:"Mar",name:"Espalda + Bíceps",sub:"Conecta mentalmente el músculo",exercises:[
-    {n:"Dominadas / jalón al pecho",s:"4",r:"6–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Remo con barra",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Remo mancuerna unilateral",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"c"},
-    {n:"Pull-over en polea",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Curl de bíceps con barra",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Curl martillo mancuernas",s:"3",r:"12",rest:60,fail:"last",fl:"Última serie",t:"i"},
+    {n:"Jalón al pecho",s:"4",r:"6–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c",sug:"30–40kg"},
+    {n:"Remo con barra",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c",sug:"35–45kg"},
+    {n:"Remo con mancuerna unilateral",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"c",sug:"14–18kg"},
+    {n:"Remo en polea",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"c",sug:"30–40kg"},
+    {n:"Pull-over en polea",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"10–14kg"},
+    {n:"Curl de bíceps en polea",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"i",sug:"10–14kg"},
+    {n:"Curl martillo con mancuernas",s:"3",r:"12",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"7–9kg c/u"},
   ],tip:"<b>El truco es el codo.</b> Empuja el codo hacia el suelo en jalones y remos — no jales con las manos."},
   {id:"miercoles",label:"Mié",name:"Piernas + Abdomen",sub:"El día más duro — y el más importante",exercises:[
-    {n:"Sentadilla con barra",s:"4",r:"6–8",rest:180,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Prensa de piernas",s:"4",r:"10–12",rest:120,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Sentadilla búlgara con mancuernas",s:"4",r:"10–12 c/pierna",rest:120,fail:"last",fl:"Última serie",t:"c"},
-    {n:"Extensión cuádriceps",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Gemelos de pie en máquina",s:"4",r:"15–20",rest:60,fail:"last2",fl:"Últimas 2 series",t:"i"},
-    {n:"Elevación de piernas colgado",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"co"},
-    {n:"Crunch en polea",s:"3",r:"15–20",rest:60,fail:"last",fl:"Última serie",t:"co"},
-  ],tip:"<b>Piernas = más hormona de crecimiento.</b> Los 3 min en sentadilla son obligatorios — apurarte baja el rendimiento."},
+    {n:"Sentadilla con barra",s:"4",r:"6–8",rest:180,fail:"no",fl:"No (RIR 2)",t:"c",sug:"40–50kg"},
+    {n:"Sentadilla en smith",s:"3",r:"10–12",rest:120,fail:"last",fl:"Última serie",t:"c",sug:"35–45kg"},
+    {n:"Prensa de piernas",s:"4",r:"10–12",rest:120,fail:"no",fl:"No (RIR 2)",t:"c",sug:"80–100kg"},
+    {n:"Peso muerto rumano",s:"3",r:"10–12",rest:120,fail:"last",fl:"Última serie",t:"c",sug:"35–45kg"},
+    {n:"Hollow Body hold",s:"3",r:"30–40s",rest:45,fail:"always",fl:"Hasta fallo",t:"co",sug:"peso corporal"},
+    {n:"Crunch en polea",s:"3",r:"15–20",rest:60,fail:"last",fl:"Última serie",t:"co",sug:"15–20kg"},
+    {n:"Extensión cuádriceps",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"20–28kg"},
+    {n:"Curl femoral en máquina",s:"3",r:"12–15",rest:75,fail:"last",fl:"Última serie",t:"i",sug:"18–24kg"},
+    {n:"Gemelos de pie en máquina",s:"4",r:"15–20",rest:60,fail:"last2",fl:"Últimas 2 series",t:"i",sug:"35–45kg"},
+  ],tip:"<b>Piernas = más hormona de crecimiento.</b> Los 3 min en sentadilla son obligatorios — apurarte baja el rendimiento. Ahora también metes isquios y glúteos de verdad con el rumano y el curl femoral, no solo cuádriceps."},
   {id:"jueves",label:"Jue",name:"Hombros + Tríceps + Bíceps",sub:"Volumen de brazos de la semana",exercises:[
-    {n:"Press militar con barra",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Elevaciones laterales",s:"4",r:"12–15",rest:60,fail:"last2",fl:"Últimas 2 series",t:"i"},
-    {n:"Pájaros / face pulls polea",s:"3",r:"15",rest:60,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Fondos en banco",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"c"},
-    {n:"Extensión sobre la cabeza",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Curl con barra EZ",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Curl martillo alterno",s:"3",r:"12",rest:60,fail:"last",fl:"Última serie",t:"i"},
-  ],tip:"<b>Pájaros / face pulls no son opcionales.</b> Mantienen sana la articulación del hombro a largo plazo. Día más corto que antes — calidad sobre cantidad."},
-  {id:"viernes",label:"Vie",name:"Piernas Posterior + Abdomen",sub:"Isquios, glúteos, core — cierra la semana",exercises:[
-    {n:"Peso muerto rumano",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Curl femoral en máquina",s:"4",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Hip thrust con barra",s:"4",r:"10–12",rest:120,fail:"no",fl:"No (RIR 2)",t:"c"},
-    {n:"Abducción en máquina",s:"3",r:"15",rest:60,fail:"last",fl:"Última serie",t:"i"},
-    {n:"Plancha lateral",s:"3",r:"30–45s c/l",rest:60,fail:"always",fl:"Hasta fallo",t:"co"},
-    {n:"Crunch suelo o polea",s:"3",r:"15–20",rest:60,fail:"last",fl:"Última serie",t:"co"},
-    {n:"Cardio HIIT o LISS",s:"—",r:"20–25 min",rest:0,fail:"dash",fl:"—",t:"ca"},
-  ],tip:"<b>Peso muerto rumano: baja lento.</b> Siente el estiramiento en los isquios. Termina con cardio para maximizar la quema."},
+    {n:"Press militar con barra",s:"4",r:"8–10",rest:150,fail:"no",fl:"No (RIR 2)",t:"c",sug:"25–30kg"},
+    {n:"Elevaciones laterales",s:"4",r:"12–15",rest:60,fail:"last2",fl:"Últimas 2 series",t:"i",sug:"5–7kg c/u"},
+    {n:"Face pulls en polea",s:"3",r:"15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"10–15kg"},
+    {n:"Pájaros con mancuerna",s:"3",r:"15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"4–6kg c/u"},
+    {n:"Press francés",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"i",sug:"12–16kg"},
+    {n:"Extensión sobre la cabeza",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"10–14kg"},
+    {n:"Curl con barra Z",s:"3",r:"10–12",rest:90,fail:"last",fl:"Última serie",t:"i",sug:"16–20kg"},
+    {n:"Curl martillo alterno",s:"3",r:"12",rest:60,fail:"last",fl:"Última serie",t:"i",sug:"7–9kg c/u"},
+  ],tip:"<b>Face pulls no son opcionales.</b> Mantienen sana la articulación del hombro a largo plazo. Día más corto que antes — calidad sobre cantidad."},
+  {id:"viernes",label:"Vie",name:"Abdomen + Cardio",sub:"Recuperación activa — las piernas descansan hasta el miércoles",exercises:[
+    {n:"Elevación de piernas colgado",s:"3",r:"12–15",rest:60,fail:"last",fl:"Última serie",t:"co",sug:"peso corporal"},
+    {n:"Crunch en polea",s:"3",r:"15–20",rest:60,fail:"last",fl:"Última serie",t:"co",sug:"15–20kg"},
+    {n:"Plancha",s:"3",r:"30–45s",rest:45,fail:"always",fl:"Hasta fallo",t:"co",sug:"peso corporal"},
+    {n:"Rueda abdominal",s:"3",r:"10–12",rest:60,fail:"last",fl:"Última serie",t:"co",sug:"peso corporal"},
+    {n:"Russian twist con disco",s:"3",r:"20 (10 c/lado)",rest:45,fail:"last",fl:"Última serie",t:"co",sug:"5–8kg"},
+    {n:"Gemelos sentado (soleo)",s:"3",r:"15–20",rest:45,fail:"last",fl:"Última serie",t:"i",sug:"20–28kg"},
+    {n:"Cardio HIIT o LISS",s:"—",r:"20–25 min",rest:0,fail:"dash",fl:"—",t:"ca",sug:"—"},
+  ],tip:"<b>Semana cerrada sin rematar las piernas.</b> Este día es más corto y liviano a propósito: sumas abdomen y una segunda dosis de pantorrilla mientras las piernas grandes descansan de verdad hasta el próximo miércoles."},
 ];
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
 function loadST(){
-  try { return JSON.parse(localStorage.getItem("gym_v4")||"{}"); } catch(e){}
+  try { return JSON.parse(localStorage.getItem("gym_v5")||"{}"); } catch(e){}
   return {};
 }
 function save(){
   const s=JSON.stringify(ST);
-  try { localStorage.setItem("gym_v4",s); return; } catch(e){}
+  try { localStorage.setItem("gym_v5",s); return; } catch(e){}
 }
 let ST = loadST();
 
@@ -750,7 +756,8 @@ function renderWorkout(){
       <div class="dh-sub">${day.sub}</div>
     </div>
     <div class="dh-badge"><span class="dh-badge-num">${done}/${total}</span><div class="dh-badge-label">ejercicios</div></div>
-  </div>`;
+  </div>
+  <div style="font-size:10px;color:var(--t3);margin:-6px 0 12px;padding:0 2px;">💡 El "peso sugerido" es un punto de partida (1,75m · 66kg) — ajústalo según tu técnica y cómo sientas el RIR real, no es una meta fija.</div>`;
 
   if(allDone) h+=`<div class="done-banner show"><div class="done-banner-icon">💪</div><div class="done-banner-title">¡Día completado!</div><div class="done-banner-sub">Descansa bien — el músculo crece en el descanso.</div></div>`;
 
@@ -830,6 +837,7 @@ function renderWorkout(){
             <span class="ex-name">${ex.n}</span>
             <span class="ex-badge ${badgeCls}">${badgeLbl}</span>
             ${isCustom?`<span style="font-size:8px;color:var(--blue);font-weight:700">+</span>`:(hasCustomEdit?`<span style="font-size:8px;color:var(--accent3);font-weight:700">✎</span>`:"")}
+            <button class="photo-ex-btn" onclick="event.stopPropagation();openExercisePhoto('${ex.n.replace(/'/g,"\\'")}')" title="Ver foto de referencia">📷</button>
             <button class="edit-toggle-btn" onclick="toggleEditCard('${day.id}','${ek}',event)">${isEditing?"Cerrar":"Editar"}</button>
             <button class="del-ex-btn" onclick="deleteExerciseByKey('${day.id}','${ek}',event)">✕</button>
           </div>
@@ -837,6 +845,7 @@ function renderWorkout(){
             <div class="ex-stat"><div class="ex-sl">Series</div><div class="ex-sv">${ss}/${totalSeries||"—"}</div></div>
             <div class="ex-stat"><div class="ex-sl">Reps</div><div class="ex-sv">${ex.r}</div></div>
             <div class="ex-stat"><div class="ex-sl">Descanso</div><div class="ex-sv">${restLabel}</div></div>
+            ${ex.sug?`<div class="ex-stat"><div class="ex-sl">Peso sugerido</div><div class="ex-sv" style="color:var(--accent)">${ex.sug}</div></div>`:""}
           </div>
           <div class="ex-chip ${chipCls}">${ex.fl}</div>
         </div>
@@ -846,8 +855,8 @@ function renderWorkout(){
         ${serBtns}
         <div class="wlog-label">Peso / Notas</div>
         <div class="wlog-row">
-          <input class="wlog-input" type="text" inputmode="decimal"
-            placeholder="ej: 80kg · 4×8"
+          <input class="wlog-input" type="text"
+            placeholder="${ex.sug?('sugerido: '+ex.sug):'ej: 80kg · 4×8'}"
             value="${wval}"
             onclick="event.stopPropagation()"
             onchange="saveWeightByKey('${day.id}','${ek}',this.value)"
@@ -998,6 +1007,12 @@ function saveWeightByKey(dayId,ek,val){
   save();
 }
 
+// Abrir foto de referencia del ejercicio (búsqueda de imágenes)
+function openExercisePhoto(name){
+  const q = encodeURIComponent(name + " ejercicio técnica gimnasio");
+  window.open("https://www.google.com/search?tbm=isch&q="+q, "_blank");
+}
+
 // Tap a series button
 function tickSerieByKey(dayId,ek,serNum,event){
   event.stopPropagation();
@@ -1016,13 +1031,13 @@ function tickSerieByKey(dayId,ek,serNum,event){
   ST.sets[dayId][ek]=serNum;
 
   const isLast=serNum>=total;
+
+  if(ex.rest>0) startTimer(ex.rest, ex.n, isLast?`Última serie — descansa antes del próximo ejercicio`:`Serie ${serNum} completada`);
+
   if(isLast){
     logHistory(dayId);
     updateStreak();
-    save();renderWorkout();return;
   }
-
-  if(ex.rest>0) startTimer(ex.rest, ex.n, `Serie ${serNum} completada`);
   save();renderWorkout();
 }
 
